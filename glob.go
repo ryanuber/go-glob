@@ -5,8 +5,10 @@ import (
 	"strings"
 )
 
+const GLOB = "*"
+
 func Glob(pattern, subj string) bool {
-	parts := strings.Split(pattern, "*")
+	parts := strings.Split(pattern, GLOB)
 
 	switch len(parts) {
 	case 0:
@@ -14,8 +16,8 @@ func Glob(pattern, subj string) bool {
 	case 1:
 		return subj == pattern
 	default:
-		leadingGlob := strings.HasPrefix(pattern, "*")
-		trailingGlob := strings.HasSuffix(pattern, "*")
+		leadingGlob := strings.HasPrefix(pattern, GLOB)
+		trailingGlob := strings.HasSuffix(pattern, GLOB)
 		end := len(parts) - 1
 
 		for i, part := range parts {
