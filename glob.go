@@ -21,16 +21,18 @@ func Glob(pattern, subj string) bool {
 		for i, part := range parts {
 			switch {
 			case i == 0 && leadingGlob:
-				end -= 1
 				continue
 			case i == 1 && leadingGlob:
 				if !strings.Contains(subj, part) {
 					return false
 				}
-			case i == end && trailingGlob:
+			case i == end:
+				if len(subj) > 0 {
+					return trailingGlob
+				}
 				return true
 			default:
-				if subj != part {
+				if !strings.HasPrefix(subj, part) {
 					return false
 				}
 			}
@@ -43,5 +45,5 @@ func Glob(pattern, subj string) bool {
 }
 
 func main() {
-	fmt.Printf("%#v\n", Glob("*te*t", "blahtest123"))
+	fmt.Printf("%#v\n", Glob("*e*t*", "test123"))
 }
