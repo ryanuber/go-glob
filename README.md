@@ -7,12 +7,10 @@ Globs are an extremely user-friendly way of supporting string matching without
 requiring knowledge of regular expressions or Go's particular regex engine. Most
 people understand that if you put a `*` character somewhere in a string, it is
 treated as a wildcard. Surprisingly, this functionality isn't found in Go's
-standard library, except for `filepath.Match`, which is intended to be used
-while comparing paths (not arbitrary strings), and works on a directory level
-instead of a full string level. Globbing in a generic way is useful for
-including lots of files under a common directory in any number of subdirectories
-in a search, matching files by extension recursively in a directory tree,
-matching a portion of text from user input, among many other things.
+standard library, except for `path.Match`, which is intended to be used while
+comparing paths (not arbitrary strings), and contains specialized logic for this
+use case. A better solution might be a POSIX basic (non-ERE) regular expression
+engine for Go, which doesn't exist currently.
 
 Example
 =======
