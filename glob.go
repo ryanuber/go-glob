@@ -39,7 +39,6 @@ func Glob(pattern, subj string) bool {
 				if len(subj) > 0 {
 					return trailingGlob || strings.HasSuffix(subj, part)
 				}
-				return true
 			default:
 				if !strings.Contains(subj, part) {
 					return false
