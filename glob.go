@@ -23,6 +23,7 @@ func Glob(pattern, subj string) bool {
 		for i, part := range parts {
 			switch {
 			case i == 0 && leadingGlob:
+				end--
 				continue
 			case i == 1 && leadingGlob:
 				if !strings.Contains(subj, part) {
@@ -30,15 +31,15 @@ func Glob(pattern, subj string) bool {
 				}
 			case i == end:
 				if len(subj) > 0 {
-					return trailingGlob
+					return trailingGlob || strings.HasSuffix(subj, part)
 				}
 				return true
 			default:
-				if !strings.HasPrefix(subj, part) {
+				if !strings.Contains(subj, part) {
 					return false
 				}
 			}
-			idx := strings.Index(subj, part) + len(part) + 1
+			idx := strings.Index(subj, part) + len(part)
 			subj = subj[idx:]
 		}
 	}
@@ -47,5 +48,5 @@ func Glob(pattern, subj string) bool {
 }
 
 func main() {
-	fmt.Printf("%#v\n", Glob("*e*t*", "test123"))
+	fmt.Printf("%#v\n", Glob("this is*long* test*woo", "this is a long test-sentence with many globswoo"))
 }
