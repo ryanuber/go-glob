@@ -1,5 +1,4 @@
-String globbing in golang
-=========================
+# String globbing in golang [![Build Status](https://travis-ci.org/ryanuber/go-glob.svg)](https://travis-ci.org/ryanuber/go-glob)
 
 `go-glob` is a single-function library implementing basic string glob support.
 
