@@ -17,40 +17,39 @@ func Glob(pattern, subj string) bool {
 
 	parts := strings.Split(pattern, GLOB)
 
-	switch len(parts) {
-	case 1:
+	if len(parts) == 1 {
 		// No globs in pattern, so test for equality
 		return subj == pattern
-	default:
-		leadingGlob := strings.HasPrefix(pattern, GLOB)
-		trailingGlob := strings.HasSuffix(pattern, GLOB)
-		end := len(parts) - 1
+	}
 
-		for i, part := range parts {
-			switch {
-			case i == 0:
-				if leadingGlob {
-					continue
-				}
-				if !strings.HasPrefix(subj, part) {
-					return false
-				}
-			case i == end:
-				if len(subj) > 0 {
-					return trailingGlob || strings.HasSuffix(subj, part)
-				}
-			default:
-				if !strings.Contains(subj, part) {
-					return false
-				}
+	leadingGlob := strings.HasPrefix(pattern, GLOB)
+	trailingGlob := strings.HasSuffix(pattern, GLOB)
+	end := len(parts) - 1
+
+	for i, part := range parts {
+		switch {
+		case i == 0:
+			if leadingGlob {
+				continue
 			}
-
-			// Trim evaluated text from subj as we loop over the pattern.
-			idx := strings.Index(subj, part) + len(part)
-			subj = subj[idx:]
+			if !strings.HasPrefix(subj, part) {
+				return false
+			}
+		case i == end:
+			if len(subj) > 0 {
+				return trailingGlob || strings.HasSuffix(subj, part)
+			}
+		default:
+			if !strings.Contains(subj, part) {
+				return false
+			}
 		}
 
-		// All parts of the pattern matched
-		return true
+		// Trim evaluated text from subj as we loop over the pattern.
+		idx := strings.Index(subj, part) + len(part)
+		subj = subj[idx:]
 	}
+
+	// All parts of the pattern matched
+	return true
 }
