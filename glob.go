@@ -27,15 +27,15 @@ func Glob(pattern, subj string) bool {
 	end := len(parts) - 1
 
 	for i, part := range parts {
-		switch {
-		case i == 0:
+		switch i {
+		case 0:
 			if leadingGlob {
 				continue
 			}
 			if !strings.HasPrefix(subj, part) {
 				return false
 			}
-		case i == end:
+		case end:
 			if len(subj) > 0 {
 				return trailingGlob || strings.HasSuffix(subj, part)
 			}
