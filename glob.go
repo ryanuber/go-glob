@@ -9,10 +9,14 @@ const GLOB = "*"
 // subject string. The result is a simple true/false, determining whether or
 // not the glob pattern matched the subject text.
 func Glob(pattern, subj string) bool {
-	// Shortcut the entire function if the pattern provided was empty. An empty
-	// pattern can, however, match an empty subject.
+	// Empty pattern can only match empty subject
 	if pattern == "" {
 		return subj == pattern
+	}
+
+	// If the pattern _is_ a glob, it matches everything
+	if pattern == GLOB {
+		return true
 	}
 
 	parts := strings.Split(pattern, GLOB)
