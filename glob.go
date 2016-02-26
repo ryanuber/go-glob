@@ -40,9 +40,7 @@ func Glob(pattern, subj string) bool {
 				return false
 			}
 		case end:
-			if len(subj) > 0 {
-				return trailingGlob || strings.HasSuffix(subj, part)
-			}
+			return trailingGlob || strings.HasSuffix(subj, part)
 		default:
 			if !strings.Contains(subj, part) {
 				return false
@@ -54,6 +52,7 @@ func Glob(pattern, subj string) bool {
 		subj = subj[idx:]
 	}
 
-	// All parts of the pattern matched
-	return true
+	// We should never get here because "case end:" above should always trigger at the end of
+	// iterating over parts. If we do, it's a bug in this library that should be reported and fixed.
+	panic("unreachable")
 }
