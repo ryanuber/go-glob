@@ -1,6 +1,9 @@
 package glob
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func testGlobMatch(t *testing.T, pattern, subj string) {
 	if !Glob(pattern, subj) {
@@ -17,6 +20,19 @@ func testGlobNoMatch(t *testing.T, pattern, subj string) {
 func TestEmptyPattern(t *testing.T) {
 	testGlobMatch(t, "", "")
 	testGlobNoMatch(t, "", "test")
+}
+
+func TestEmptySubject(t *testing.T) {
+	testGlobMatch(t, "", "")
+	testGlobNoMatch(t, "test", "")
+	testGlobMatch(t, "*", "")
+	testGlobMatch(t, "**", "")
+	testGlobMatch(t, "***", "")
+	testGlobMatch(t, "******************************", "")
+	testGlobMatch(t, strings.Repeat("*", 1000000), "")
+	testGlobNoMatch(t, strings.Repeat("*", 1000000)+"x", "")
+	testGlobNoMatch(t, "x"+strings.Repeat("*", 1000000), "")
+	testGlobNoMatch(t, "x"+strings.Repeat("*", 1000000)+"x", "")
 }
 
 func TestPatternWithoutGlobs(t *testing.T) {
