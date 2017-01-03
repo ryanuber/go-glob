@@ -27,3 +27,12 @@ func main() {
     glob.Glob("/home/*", "/home/ryanuber/.bashrc") // true
 }
 ```
+
+Debian package
+==============
+
+To build the Debian package, run `git buildpackage -uc -us`.
+The `-uc -us` options skip package signing.
+
+The resulting package is named golang-github-ryanuber-go-glob in accordance
+with the [Debian Go Package Naming Conventions](http://pkg-go.alioth.debian.org/packaging.html#_naming_conventions_2).
