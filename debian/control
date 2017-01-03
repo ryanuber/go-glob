@@ -1,0 +1,33 @@
+Source: golang-github-ryanuber-go-glob
+Section: devel
+Priority: extra
+Maintainer: Debian Go Packaging Team <pkg-go-maintainers@lists.alioth.debian.org>
+Uploaders: Ted Percival <ted.percival@echostar.com>
+Build-Depends: debhelper (>= 10),
+               dh-golang,
+               golang-go
+Standards-Version: 3.9.6
+Homepage: https://github.com/ryanuber/go-glob
+Vcs-Browser: https://github.com/tedjp/go-glob
+Vcs-Git: git://github.com/tedjp/go-glob.git
+XS-Go-Import-Path: github.com/ryanuber/go-glob
+
+Package: golang-github-ryanuber-go-glob-dev
+Architecture: all
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+         golang-go
+Description: Basic string globs in golang
+ String globbing in golang
+ go-glob is a single-function
+ library implementing basic string glob support.
+ .
+ Globs are an extremely user-friendly way of supporting string matching
+ without requiring knowledge of regular expressions or Go's particular
+ regex engine. Most people understand that if you put a * character
+ somewhere in a string, it is treated as a wildcard. Surprisingly,
+ this functionality isn't found in Go's standard library, except for
+ path.Match, which is intended to be used while comparing paths (not
+ arbitrary strings), and contains specialized logic for this use case. A
+ better solution might be a POSIX basic (non-ERE) regular expression
+ engine for Go, which doesn't exist currently.
