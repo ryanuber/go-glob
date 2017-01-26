@@ -31,8 +31,13 @@ func Glob(pattern, subj string) bool {
 	end := len(parts) - 1
 
 	// Check the first section. Requires special handling.
-	if !leadingGlob && !strings.HasPrefix(subj, parts[0]) {
-		return false
+	if !leadingGlob {
+		if strings.HasPrefix(subj, parts[0]) {
+			// Strip prefix, to avoid matching it again
+			subj = subj[len(parts[0]):]
+		} else {
+			return false
+		}
 	}
 
 	// Go over the middle parts and ensure they match.
