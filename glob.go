@@ -42,13 +42,13 @@ func Glob(pattern, subj string) bool {
 
 	// Go over the middle parts and ensure they match.
 	for i := 1; i < end; i++ {
-		if !strings.Contains(subj, parts[i]) {
+		partStartIdx := strings.Index(subj, parts[i])
+		if partStartIdx < 0 {
 			return false
 		}
 
 		// Trim evaluated text from subj as we loop over the pattern.
-		idx := strings.Index(subj, parts[i]) + len(parts[i])
-		subj = subj[idx:]
+		subj = subj[partStartIdx+len(parts[i]):]
 	}
 
 	// Reached the last section. Requires special handling.
