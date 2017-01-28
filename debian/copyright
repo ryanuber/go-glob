@@ -1,0 +1,14 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: go-glob
+Source: https://github.com/ryanuber/go-glob
+
+Files: *
+Copyright: 2014 Ryan Uber
+License: TODO
+
+Files: debian/*
+Copyright: 2017 Ted Percival <ted.percival@echostar.com>
+License: MIT
+Comment: Debian packaging is licensed under the same terms as upstream
+
+License: MIT
