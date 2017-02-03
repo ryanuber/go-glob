@@ -5,6 +5,11 @@ import "strings"
 // The character which is treated like a glob
 const GLOB = "*"
 
+// GlobI is a case-insensitive version of Glob.
+func GlobI(pattern, subj string) bool {
+	return Glob(strings.ToLower(pattern), strings.ToLower(subj))
+}
+
 // Glob will test a string pattern, potentially containing globs, against a
 // subject string. The result is a simple true/false, determining whether or
 // not the glob pattern matched the subject text.
