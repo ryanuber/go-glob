@@ -18,11 +18,13 @@ func testGlobNoMatch(t *testing.T, pattern, subj string) {
 }
 
 func TestEmptyPattern(t *testing.T) {
+	GLOB = "*"
 	testGlobMatch(t, "", "")
 	testGlobNoMatch(t, "", "test")
 }
 
 func TestEmptySubject(t *testing.T) {
+	GLOB = "*"
 	for _, pattern := range []string{
 		"",
 		"*",
@@ -59,10 +61,12 @@ func TestEmptySubject(t *testing.T) {
 }
 
 func TestPatternWithoutGlobs(t *testing.T) {
+	GLOB = "*"
 	testGlobMatch(t, "test", "test")
 }
 
 func TestGlob(t *testing.T) {
+	GLOB = "*"
 	// Matches
 	for _, pattern := range []string{
 		"*test",           // Leading glob
@@ -97,6 +101,7 @@ func TestGlob(t *testing.T) {
 }
 
 func BenchmarkGlob(b *testing.B) {
+	GLOB = "*"
 	for i := 0; i < b.N; i++ {
 		if !Glob("*quick*fox*dog", "The quick brown fox jumped over the lazy dog") {
 			b.Fatalf("should match")
