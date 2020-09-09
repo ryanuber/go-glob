@@ -103,3 +103,13 @@ func BenchmarkGlob(b *testing.B) {
 		}
 	}
 }
+
+func BenchmarkCompiledGlob(b *testing.B) {
+	compiledGlob := Compile("*quick*fox*dog")
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		if !compiledGlob("The quick brown fox jumped over the lazy dog") {
+			b.Fatalf("should match")
+		}
+	}
+}
