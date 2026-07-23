@@ -1,56 +1,67 @@
 package glob
 
-import "strings"
+import "unicode/utf8"
 
-// The character which is treated like a glob
+// The character which is treated like a glob (matches any sequence).
 const GLOB = "*"
+
+// single matches any single character (one Unicode code point).
+const single = '?'
 
 // Glob will test a string pattern, potentially containing globs, against a
 // subject string. The result is a simple true/false, determining whether or
 // not the glob pattern matched the subject text.
+//
+// '*' matches any sequence of characters (including empty).
+// '?' matches any single character.
 func Glob(pattern, subj string) bool {
-	// Empty pattern can only match empty subject
-	if pattern == "" {
-		return subj == pattern
-	}
+	return match(pattern, subj)
+}
 
-	// If the pattern _is_ a glob, it matches everything
-	if pattern == GLOB {
-		return true
-	}
-
-	parts := strings.Split(pattern, GLOB)
-
-	if len(parts) == 1 {
-		// No globs in pattern, so test for equality
-		return subj == pattern
-	}
-
-	leadingGlob := strings.HasPrefix(pattern, GLOB)
-	trailingGlob := strings.HasSuffix(pattern, GLOB)
-	end := len(parts) - 1
-
-	// Go over the leading parts and ensure they match.
-	for i := 0; i < end; i++ {
-		idx := strings.Index(subj, parts[i])
-
-		switch i {
-		case 0:
-			// Check the first section. Requires special handling.
-			if !leadingGlob && idx != 0 {
+func match(pattern, subj string) bool {
+	for len(pattern) > 0 {
+		switch pattern[0] {
+		case '*':
+			// Collapse consecutive *'s.
+			for len(pattern) > 1 && pattern[1] == '*' {
+				pattern = pattern[1:]
+			}
+			pattern = pattern[1:]
+			if pattern == "" {
+				return true
+			}
+			// Try the rest of the pattern against every suffix of subj.
+			for i := 0; i <= len(subj); {
+				if match(pattern, subj[i:]) {
+					return true
+				}
+				if i == len(subj) {
+					break
+				}
+				_, size := utf8.DecodeRuneInString(subj[i:])
+				if size < 1 {
+					size = 1
+				}
+				i += size
+			}
+			return false
+		case '?':
+			if subj == "" {
 				return false
 			}
+			_, size := utf8.DecodeRuneInString(subj)
+			if size < 1 {
+				size = 1
+			}
+			pattern = pattern[1:]
+			subj = subj[size:]
 		default:
-			// Check that the middle parts match.
-			if idx < 0 {
+			if subj == "" || pattern[0] != subj[0] {
 				return false
 			}
+			pattern = pattern[1:]
+			subj = subj[1:]
 		}
-
-		// Trim evaluated text from subj as we loop over the pattern.
-		subj = subj[idx+len(parts[i]):]
 	}
-
-	// Reached the last section. Requires special handling.
-	return trailingGlob || strings.HasSuffix(subj, parts[end])
+	return subj == ""
 }

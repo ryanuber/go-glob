@@ -103,3 +103,22 @@ func BenchmarkGlob(b *testing.B) {
 		}
 	}
 }
+
+
+func TestQuestionMark(t *testing.T) {
+	testGlobMatch(t, "?", "a")
+	testGlobMatch(t, "?", "ϗ")
+	testGlobNoMatch(t, "?", "")
+	testGlobNoMatch(t, "?", "ab")
+	testGlobMatch(t, "a?c", "abc")
+	testGlobMatch(t, "a?c", "aϗc")
+	testGlobNoMatch(t, "a?c", "ac")
+	testGlobNoMatch(t, "a?c", "abbc")
+	testGlobMatch(t, "??", "ab")
+	testGlobMatch(t, "a*?", "ab")
+	testGlobNoMatch(t, "a*?", "a")
+	testGlobNoMatch(t, "a*?", "")
+	testGlobMatch(t, "?*?", "ab")
+	testGlobMatch(t, "h?llo", "hello")
+	testGlobNoMatch(t, "h?llo", "hllo")
+}
