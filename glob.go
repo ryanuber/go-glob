@@ -1,56 +1,96 @@
 package glob
 
-import "strings"
+import "unicode/utf8"
 
 // The character which is treated like a glob
 const GLOB = "*"
 
+// The character which is treated like a single-character wildcard
+const SINGLE = "?"
+
 // Glob will test a string pattern, potentially containing globs, against a
 // subject string. The result is a simple true/false, determining whether or
 // not the glob pattern matched the subject text.
+// The '*' character matches zero or more characters.
+// The '?' character matches exactly one character (rune).
 func Glob(pattern, subj string) bool {
 	// Empty pattern can only match empty subject
 	if pattern == "" {
-		return subj == pattern
+		return subj == ""
 	}
 
-	// If the pattern _is_ a glob, it matches everything
+	// If the pattern is a single glob, it matches everything
 	if pattern == GLOB {
 		return true
 	}
 
-	parts := strings.Split(pattern, GLOB)
-
-	if len(parts) == 1 {
-		// No globs in pattern, so test for equality
-		return subj == pattern
+	// Fast path for exact match
+	if pattern == subj {
+		return true
 	}
 
-	leadingGlob := strings.HasPrefix(pattern, GLOB)
-	trailingGlob := strings.HasSuffix(pattern, GLOB)
-	end := len(parts) - 1
+	var (
+		pIdx    int
+		sIdx    int
+		starIdx = -1
+		sTmpIdx = -1
+		pLen    = len(pattern)
+		sLen    = len(subj)
+	)
 
-	// Go over the leading parts and ensure they match.
-	for i := 0; i < end; i++ {
-		idx := strings.Index(subj, parts[i])
-
-		switch i {
-		case 0:
-			// Check the first section. Requires special handling.
-			if !leadingGlob && idx != 0 {
-				return false
+	for sIdx < sLen {
+		if pIdx < pLen {
+			pByte := pattern[pIdx]
+			if pByte == '*' {
+				for pIdx < pLen && pattern[pIdx] == '*' {
+					pIdx++
+				}
+				if pIdx == pLen {
+					return true
+				}
+				starIdx = pIdx - 1
+				sTmpIdx = sIdx
+				continue
 			}
-		default:
-			// Check that the middle parts match.
-			if idx < 0 {
-				return false
+
+			if pByte == '?' {
+				_, sSize := utf8.DecodeRuneInString(subj[sIdx:])
+				pIdx++
+				sIdx += sSize
+				continue
+			}
+
+			if pByte < utf8.RuneSelf && subj[sIdx] < utf8.RuneSelf {
+				if pByte == subj[sIdx] {
+					pIdx++
+					sIdx++
+					continue
+				}
+			} else {
+				pRune, pSize := utf8.DecodeRuneInString(pattern[pIdx:])
+				sRune, sSize := utf8.DecodeRuneInString(subj[sIdx:])
+				if pRune == sRune {
+					pIdx += pSize
+					sIdx += sSize
+					continue
+				}
 			}
 		}
 
-		// Trim evaluated text from subj as we loop over the pattern.
-		subj = subj[idx+len(parts[i]):]
+		if starIdx != -1 {
+			_, sSize := utf8.DecodeRuneInString(subj[sTmpIdx:])
+			sTmpIdx += sSize
+			sIdx = sTmpIdx
+			pIdx = starIdx + 1
+			continue
+		}
+
+		return false
 	}
 
-	// Reached the last section. Requires special handling.
-	return trailingGlob || strings.HasSuffix(subj, parts[end])
+	for pIdx < pLen && pattern[pIdx] == '*' {
+		pIdx++
+	}
+
+	return pIdx == pLen
 }

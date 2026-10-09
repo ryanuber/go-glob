@@ -96,6 +96,125 @@ func TestGlob(t *testing.T) {
 	}
 }
 
+func TestSingleWildcard(t *testing.T) {
+	// Matches
+	for _, tc := range []struct {
+		pattern string
+		subj    string
+	}{
+		{"?", "a"},
+		{"?", "z"},
+		{"??", "ab"},
+		{"???", "abc"},
+		{"?ello", "hello"},
+		{"h?llo", "hello"},
+		{"hell?", "hello"},
+		{"h?ll?", "hello"},
+		{"??ll?", "hello"},
+		{"?????", "hello"},
+		{"?", "Ѿ"},
+		{"??", "ϗѾ"},
+		{"???", "ϗѾϗ"},
+		{"ϗ?ϗ", "ϗѾϗ"},
+		{"?Ѿ?", "aѾb"},
+		{"a?c", "abc"},
+	} {
+		testGlobMatch(t, tc.pattern, tc.subj)
+	}
+
+	// Non-matches
+	for _, tc := range []struct {
+		pattern string
+		subj    string
+	}{
+		{"?", ""},
+		{"??", "a"},
+		{"???", "ab"},
+		{"????", "abc"},
+		{"?", "ab"},
+		{"??", "abc"},
+		{"h?llo", "hllo"},
+		{"h?llo", "heello"},
+		{"hell?", "hell"},
+		{"hell?", "helloo"},
+		{"?ello", "ello"},
+		{"ϗ?ϗ", "ϗϗ"},
+		{"ϗ?ϗ", "ϗѾѾϗ"},
+		{"?", "ϗѾ"},
+		{"a?c", "ac"},
+		{"a?c", "abbc"},
+	} {
+		testGlobNoMatch(t, tc.pattern, tc.subj)
+	}
+}
+
+func TestCombinedWildcards(t *testing.T) {
+	// Matches
+	for _, tc := range []struct {
+		pattern string
+		subj    string
+	}{
+		{"*?", "a"},
+		{"*?", "ab"},
+		{"*?", "abc"},
+		{"?*", "a"},
+		{"?*", "ab"},
+		{"?*", "abc"},
+		{"*?*", "a"},
+		{"*?*", "abc"},
+		{"?*?", "ab"},
+		{"?*?", "abc"},
+		{"?*?", "abcd"},
+		{"*?*?*", "ab"},
+		{"*?*?*", "abc"},
+		{"??*", "ab"},
+		{"??*", "abc"},
+		{"*??", "ab"},
+		{"*??", "abc"},
+		{"h*l?o", "hello"},
+		{"h*l?o", "heeeello"},
+		{"h?l*o", "hello"},
+		{"h?l*o", "help...o"},
+		{"*?test", "a test"},
+		{"this*?est", "this is a test"},
+		{"this*?est", "this test"},
+		{"this*?*test", "this is a test"},
+		{"*ϗ?Ѿ*", "prefix ϗaѾ suffix"},
+		{"*a?b*", "axayb"},
+		{"a*?c", "abc"},
+		{"a*?c", "abbc"},
+		{"a*b?c*", "a...b!c..."},
+		{"*a?b", "a a a b"},
+		{"*?a", "bca"},
+	} {
+		testGlobMatch(t, tc.pattern, tc.subj)
+	}
+
+	// Non-matches
+	for _, tc := range []struct {
+		pattern string
+		subj    string
+	}{
+		{"*?", ""},
+		{"?*", ""},
+		{"*?*", ""},
+		{"?*?", "a"},
+		{"?*?", ""},
+		{"*?*?*", "a"},
+		{"*?*?*", ""},
+		{"??*", "a"},
+		{"*??", "a"},
+		{"h*l?o", "hlo"},
+		{"h?l*o", "hlo"},
+		{"a*?c", "ac"},
+		{"this*?est", "thisest"},
+		{"*a?b", "a a a"},
+		{"*?a", "a"},
+	} {
+		testGlobNoMatch(t, tc.pattern, tc.subj)
+	}
+}
+
 func BenchmarkGlob(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		if !Glob("*quick*fox*dog", "The quick brown fox jumped over the lazy dog") {
@@ -103,3 +222,12 @@ func BenchmarkGlob(b *testing.B) {
 		}
 	}
 }
+
+func BenchmarkGlobQuestionMark(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		if !Glob("*qu?ck*f?x*d?g", "The quick brown fox jumped over the lazy dog") {
+			b.Fatalf("should match")
+		}
+	}
+}
+
